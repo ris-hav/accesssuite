@@ -25,15 +25,11 @@ export class ModuleAccessGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{ user: RequestUser }>();
     const clientId = request.user.clientId;
 
-    // TenantScopeGuard should already have blocked null-clientId callers when
-    // both are applied together, but this guard shouldn't assume that ordering.
+    // TenantScopeGuard (applied alongside this one on every tenant route)
+    // already rejects null-clientId and suspended-subscription callers —
+    // this guard only needs to check the module grant itself.
     if (!clientId) {
       throw new ForbiddenException('This route requires a client-scoped user');
-    }
-
-    const subscription = await this.prisma.subscription.findUnique({ where: { clientId } });
-    if (!subscription || subscription.status === 'SUSPENDED') {
-      throw new ForbiddenException("This client's subscription is suspended");
     }
 
     const access = await this.prisma.clientModuleAccess.findFirst({
