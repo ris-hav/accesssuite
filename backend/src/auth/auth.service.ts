@@ -48,4 +48,27 @@ export class AuthService {
     };
     return { accessToken: await this.jwtService.signAsync(payload) };
   }
+
+  // Powers GET /auth/me. Beyond the JWT's own contents, the frontend also
+  // needs to know which modules to render — that's a live DB fact (an admin
+  // could revoke one between page loads), not something safe to bake into
+  // the token itself.
+  async getMe(jwtUser: {
+    userId: string;
+    email: string;
+    role: string;
+    isSuperAdmin: boolean;
+    clientId: string | null;
+  }) {
+    if (!jwtUser.clientId) {
+      return { ...jwtUser, modules: [] };
+    }
+
+    const access = await this.prisma.clientModuleAccess.findMany({
+      where: { clientId: jwtUser.clientId, enabled: true },
+      include: { module: true },
+    });
+
+    return { ...jwtUser, modules: access.map((a) => a.module.key) };
+  }
 }
