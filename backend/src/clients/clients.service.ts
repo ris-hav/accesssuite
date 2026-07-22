@@ -47,11 +47,12 @@ export class ClientsService {
 
       // Auto-login: the caller just proved they own this email/password by
       // choosing it in the signup form, so re-verifying via login() is redundant.
-      const { accessToken } = await this.authService.issueToken(adminUser);
+      const { accessToken, refreshToken } = await this.authService.createSession(adminUser);
 
       return {
         client: { id: client.id, name: client.name },
         accessToken,
+        refreshToken,
       };
     } catch (error) {
       // P2002 is Prisma's unique-constraint-violation code. The only unique

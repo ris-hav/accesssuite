@@ -13,7 +13,9 @@ import { JwtStrategy } from './jwt.strategy';
       secret: requireEnv('JWT_SECRET'),
       // `expiresIn` wants a branded string type from the `ms` package (e.g. '1d', '2h'),
       // but env vars are always plain `string` — narrow cast is safe, value is our own config.
-      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN ?? '1d') as `${number}d` },
+      signOptions: {
+        expiresIn: (process.env.JWT_EXPIRES_IN ?? '15m') as `${number}${'s' | 'm' | 'h' | 'd'}`,
+      },
     }),
   ],
   controllers: [AuthController],

@@ -1,5 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import type { Response } from 'express';
+import { setRefreshTokenCookie } from '../common/refresh-cookie';
 import { ClientsService } from './clients.service';
 import { SignupDto } from './dto/signup.dto';
 
@@ -11,7 +13,9 @@ export class ClientsController {
   // Deliberately unguarded: this is how a brand-new tenant joins the platform
   // in the first place, so there's no existing token to require yet.
   @Post('signup')
-  signup(@Body() dto: SignupDto) {
-    return this.clientsService.signup(dto);
+  async signup(@Body() dto: SignupDto, @Res({ passthrough: true }) res: Response) {
+    const { client, accessToken, refreshToken } = await this.clientsService.signup(dto);
+    setRefreshTokenCookie(res, refreshToken);
+    return { client, accessToken };
   }
 }

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 
 export interface LoginResponse {
   accessToken: string;
@@ -29,10 +29,10 @@ export class AuthService {
   // Deliberately in memory only — never localStorage/sessionStorage. Those
   // are readable by any script on the page, so an XSS bug anywhere in the
   // app (or a compromised dependency) could read the token straight out.
-  // Tradeoff: a hard page reload clears this and you're logged out again.
-  // A production app closes that gap with a short-lived refresh token in an
-  // httpOnly cookie (invisible to JS) to silently restore the session — not
-  // built yet, since it needs backend support we haven't added.
+  // A hard page reload still clears this, but refresh() (below) silently
+  // restores it using the httpOnly refresh-token cookie, which JS can't
+  // read even in an XSS scenario — so the session survives reloads without
+  // the access token itself ever touching persistent, script-readable storage.
   private token: string | null = null;
 
   private readonly currentUser = signal<Me | null>(null);
@@ -40,13 +40,27 @@ export class AuthService {
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${API_BASE}/auth/login`, { email, password })
+      .post<LoginResponse>(`${API_BASE}/auth/login`, { email, password }, { withCredentials: true })
       .pipe(tap((res) => (this.token = res.accessToken)));
   }
 
   signup(clientName: string, adminEmail: string, adminPassword: string): Observable<SignupResponse> {
     return this.http
-      .post<SignupResponse>(`${API_BASE}/clients/signup`, { clientName, adminEmail, adminPassword })
+      .post<SignupResponse>(
+        `${API_BASE}/clients/signup`,
+        { clientName, adminEmail, adminPassword },
+        { withCredentials: true },
+      )
+      .pipe(tap((res) => (this.token = res.accessToken)));
+  }
+
+  // Exchanges the httpOnly refresh-token cookie (sent automatically by the
+  // browser via withCredentials) for a new access token. The guards call
+  // this whenever isLoggedIn() is false but a session might still be valid
+  // server-side — e.g. right after a page reload wiped our in-memory token.
+  refresh(): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(`${API_BASE}/auth/refresh`, {}, { withCredentials: true })
       .pipe(tap((res) => (this.token = res.accessToken)));
   }
 
@@ -54,7 +68,21 @@ export class AuthService {
     return this.http.get<Me>(`${API_BASE}/auth/me`).pipe(tap((me) => this.currentUser.set(me)));
   }
 
-  logout(): void {
+  // Revokes the refresh token server-side (so it can't be used even if
+  // someone captured the cookie) before clearing local state. Best-effort:
+  // even if the network call fails, we still log out locally.
+  logout(): Observable<void> {
+    return this.http.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true }).pipe(
+      map(() => undefined),
+      tap(() => this.clearLocalSession()),
+      catchError(() => {
+        this.clearLocalSession();
+        return of(undefined);
+      }),
+    );
+  }
+
+  private clearLocalSession(): void {
     this.token = null;
     this.currentUser.set(null);
   }
