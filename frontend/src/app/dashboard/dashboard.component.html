@@ -10,6 +10,12 @@
     } @else if (user()) {
       <p class="text-gray-600 mb-6">Signed in as {{ user()!.email }} ({{ user()!.role }})</p>
 
+      @if (user()!.isSuperAdmin) {
+        <a routerLink="/admin" class="inline-block mb-6 text-sm text-blue-600 hover:underline">
+          Go to Platform Admin
+        </a>
+      }
+
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         @for (moduleKey of user()!.modules; track moduleKey) {
           <div class="bg-white rounded-lg shadow p-6">

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 
 const MODULE_LABELS: Record<string, string> = {
@@ -10,6 +10,7 @@ const MODULE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-dashboard',
+  imports: [RouterLink],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -31,7 +32,8 @@ export class DashboardComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    // logout() now revokes the refresh token server-side (best-effort) before
+    // clearing local state, so navigate only once that's actually settled.
+    this.authService.logout().subscribe(() => this.router.navigate(['/login']));
   }
 }
