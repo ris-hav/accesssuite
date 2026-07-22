@@ -1,0 +1,28 @@
+<div class="min-h-screen bg-gray-50 p-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">AccessSuite</h1>
+      <button (click)="logout()" class="text-sm text-gray-600 hover:text-gray-900">Sign out</button>
+    </div>
+
+    @if (loadError) {
+      <p class="text-red-600">{{ loadError }}</p>
+    } @else if (user()) {
+      <p class="text-gray-600 mb-6">Signed in as {{ user()!.email }} ({{ user()!.role }})</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        @for (moduleKey of user()!.modules; track moduleKey) {
+          <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="font-medium text-gray-900">{{ moduleLabels[moduleKey] ?? moduleKey }}</h2>
+          </div>
+        }
+      </div>
+
+      @if (user()!.modules.length === 0) {
+        <p class="text-gray-500">No modules enabled for your account yet.</p>
+      }
+    } @else {
+      <p class="text-gray-500">Loading…</p>
+    }
+  </div>
+</div>

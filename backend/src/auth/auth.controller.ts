@@ -14,12 +14,17 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  // A minimal protected route: proves JwtAuthGuard actually blocks unauthenticated
-  // requests, and gives the frontend a way to fetch "who am I" from a token alone.
+  // Gives the frontend a way to fetch "who am I, and what can I see" from a
+  // token alone — the dashboard renders its module tiles from this response.
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@Req() req: Request & { user: unknown }) {
-    return req.user;
+  me(
+    @Req()
+    req: Request & {
+      user: { userId: string; email: string; role: string; isSuperAdmin: boolean; clientId: string | null };
+    },
+  ) {
+    return this.authService.getMe(req.user);
   }
 }
