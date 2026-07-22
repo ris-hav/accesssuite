@@ -43,14 +43,31 @@ model Subscription {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  role         UserRole @default(VIEWER)
-  isSuperAdmin Boolean  @default(false) // platform owner flag, seeded manually — not exposed via signup
-  client       Client?  @relation(fields: [clientId], references: [id])
-  clientId     String? // nullable: super-admins aren't tied to a client
-  createdAt    DateTime @default(now())
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  role          UserRole       @default(VIEWER)
+  isSuperAdmin  Boolean        @default(false) // platform owner flag, seeded manually — not exposed via signup
+  client        Client?        @relation(fields: [clientId], references: [id])
+  clientId      String? // nullable: super-admins aren't tied to a client
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  // We store a hash, never the raw token — same reasoning as passwordHash:
+  // if the DB ever leaked, a raw token would let someone mint sessions
+  // directly. SHA-256 (not bcrypt) is enough here because this token is
+  // already high-entropy random data, unlike a human-chosen password.
+  tokenHash String    @unique
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  expiresAt DateTime
+  // Set on rotation (a refresh mints a new token and revokes this one) or
+  // on explicit logout. Null means "still valid, if not expired."
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model ModuleCatalog {

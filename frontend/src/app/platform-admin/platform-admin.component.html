@@ -1,0 +1,66 @@
+<div class="min-h-screen bg-gray-50 p-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Platform Admin</h1>
+      <button (click)="backToDashboard()" class="text-sm text-gray-600 hover:text-gray-900">Back to dashboard</button>
+    </div>
+
+    @if (loadError) {
+      <p class="text-red-600">{{ loadError }}</p>
+    }
+
+    <div class="space-y-6">
+      @for (client of clients(); track client.id) {
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <h2 class="font-medium text-gray-900">{{ client.name }}</h2>
+              @if (client.subscription) {
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full"
+                  [class]="
+                    client.subscription.status === 'SUSPENDED'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-green-100 text-green-700'
+                  "
+                >
+                  {{ client.subscription.status }}
+                </span>
+              }
+            </div>
+            @if (client.subscription) {
+              <button
+                (click)="toggleSuspension(client.id, client.subscription.status)"
+                class="text-sm px-3 py-1 rounded border"
+                [class]="
+                  client.subscription.status === 'SUSPENDED'
+                    ? 'border-green-300 text-green-600'
+                    : 'border-red-300 text-red-600'
+                "
+              >
+                {{ client.subscription.status === 'SUSPENDED' ? 'Reactivate' : 'Suspend' }}
+              </button>
+            }
+          </div>
+
+          @if (client.moduleAccess.length > 0) {
+            <div class="flex flex-wrap gap-4">
+              @for (access of client.moduleAccess; track access.id) {
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    [checked]="access.enabled"
+                    (change)="toggleModule(client.id, access.moduleId, access.enabled)"
+                  />
+                  {{ access.module.name }}
+                </label>
+              }
+            </div>
+          } @else {
+            <p class="text-sm text-gray-400">No modules assigned yet</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
