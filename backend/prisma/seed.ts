@@ -61,6 +61,19 @@ async function main() {
     },
   });
 
+  // A non-admin user on the same client, so role-restricted routes have
+  // someone to correctly reject.
+  await prisma.user.upsert({
+    where: { email: 'viewer@demo.accesssuite.dev' },
+    update: {},
+    create: {
+      email: 'viewer@demo.accesssuite.dev',
+      passwordHash: await bcrypt.hash('DemoViewer123!', 10),
+      role: 'VIEWER',
+      clientId: demoClient.id,
+    },
+  });
+
   await Promise.all(
     modules.map((m) =>
       prisma.clientModuleAccess.upsert({
@@ -74,6 +87,7 @@ async function main() {
   console.log('Seed complete:');
   console.log('  Super-admin: superadmin@accesssuite.dev / SuperAdmin123!');
   console.log('  Demo admin:  admin@demo.accesssuite.dev / DemoAdmin123!');
+  console.log('  Demo viewer: viewer@demo.accesssuite.dev / DemoViewer123!');
 }
 
 main()
