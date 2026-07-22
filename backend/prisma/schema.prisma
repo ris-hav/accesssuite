@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  SUSPENDED
+}
+
+enum UserRole {
+  ADMIN // within their own Client
+  MANAGER
+  VIEWER
+}
+
+model Client {
+  id           String               @id @default(uuid())
+  name         String
+  createdAt    DateTime             @default(now())
+  subscription Subscription?
+  users        User[]
+  moduleAccess ClientModuleAccess[]
+}
+
+model Subscription {
+  id          String             @id @default(uuid())
+  status      SubscriptionStatus @default(TRIAL)
+  trialEndsAt DateTime
+  client      Client             @relation(fields: [clientId], references: [id])
+  clientId    String             @unique
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(VIEWER)
+  isSuperAdmin Boolean  @default(false) // platform owner flag, seeded manually — not exposed via signup
+  client       Client?  @relation(fields: [clientId], references: [id])
+  clientId     String? // nullable: super-admins aren't tied to a client
+  createdAt    DateTime @default(now())
+}
+
+model ModuleCatalog {
+  id           String               @id @default(uuid())
+  key          String               @unique // e.g. "dashboard", "reports", "settings"
+  name         String
+  clientAccess ClientModuleAccess[]
+}
+
+model ClientModuleAccess {
+  id       String        @id @default(uuid())
+  client   Client        @relation(fields: [clientId], references: [id])
+  clientId String
+  module   ModuleCatalog @relation(fields: [moduleId], references: [id])
+  moduleId String
+  enabled  Boolean       @default(true)
+
+  @@unique([clientId, moduleId])
+}
