@@ -4,6 +4,14 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 
+interface TokenSubject {
+  id: string;
+  email: string;
+  role: string;
+  isSuperAdmin: boolean;
+  clientId: string | null;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,6 +33,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    return this.issueToken(user);
+  }
+
+  // Shared by login() and the client-signup flow (which auto-logs-in a
+  // freshly created admin without re-checking the password it just set).
+  async issueToken(user: TokenSubject): Promise<{ accessToken: string }> {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -32,7 +46,6 @@ export class AuthService {
       isSuperAdmin: user.isSuperAdmin,
       clientId: user.clientId,
     };
-
     return { accessToken: await this.jwtService.signAsync(payload) };
   }
 }
