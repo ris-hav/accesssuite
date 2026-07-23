@@ -19,6 +19,7 @@ export class LoginComponent {
   });
 
   errorMessage: string | null = null;
+  showPassword = false;
 
   submit(): void {
     if (this.form.invalid) {

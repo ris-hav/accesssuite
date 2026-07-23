@@ -15,6 +15,7 @@ export class TeamComponent implements OnInit {
   readonly members = signal<TeamMember[]>([]);
   loadError: string | null = null;
   formError: string | null = null;
+  showPassword = false;
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

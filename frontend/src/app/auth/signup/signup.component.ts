@@ -21,6 +21,7 @@ export class SignupComponent {
   });
 
   errorMessage: string | null = null;
+  showPassword = false;
 
   submit(): void {
     if (this.form.invalid) {

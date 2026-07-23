@@ -4,6 +4,7 @@ import { Prisma } from '../../generated/prisma/client';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
 
 const TRIAL_LENGTH_DAYS = 14;
 
@@ -63,5 +64,20 @@ export class ClientsService {
       }
       throw error;
     }
+  }
+
+  getMyClient(clientId: string) {
+    return this.prisma.client.findUniqueOrThrow({
+      where: { id: clientId },
+      select: { id: true, name: true, createdAt: true },
+    });
+  }
+
+  updateMyClient(clientId: string, dto: UpdateClientDto) {
+    return this.prisma.client.update({
+      where: { id: clientId },
+      data: { name: dto.name },
+      select: { id: true, name: true, createdAt: true },
+    });
   }
 }
