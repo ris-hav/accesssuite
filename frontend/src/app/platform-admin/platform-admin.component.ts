@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AdminClient, ModuleCatalogEntry, PlatformAdminService } from './platform-admin.service';
 
@@ -9,7 +8,6 @@ import { AdminClient, ModuleCatalogEntry, PlatformAdminService } from './platfor
 })
 export class PlatformAdminComponent implements OnInit {
   private readonly platformAdminService = inject(PlatformAdminService);
-  private readonly router = inject(Router);
 
   readonly clients = signal<AdminClient[]>([]);
   readonly moduleCatalog = signal<ModuleCatalogEntry[]>([]);
@@ -52,9 +50,5 @@ export class PlatformAdminComponent implements OnInit {
     this.platformAdminService.setSubscriptionStatus(clientId, nextStatus).subscribe({
       next: () => this.load(),
     });
-  }
-
-  backToDashboard(): void {
-    this.router.navigate(['/dashboard']);
   }
 }

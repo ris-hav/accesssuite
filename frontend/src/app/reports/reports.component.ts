@@ -1,11 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { ReportsService, UsageReport } from './reports.service';
 
 @Component({
   selector: 'app-reports',
-  imports: [RouterLink, DatePipe],
+  imports: [DatePipe],
   templateUrl: './reports.component.html',
 })
 export class ReportsComponent implements OnInit {

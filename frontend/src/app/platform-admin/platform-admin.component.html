@@ -1,27 +1,26 @@
-<div class="min-h-screen bg-gray-50 p-8">
+<div class="p-8">
   <div class="max-w-4xl mx-auto">
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-2xl font-semibold text-gray-900">Platform Admin</h1>
-      <button (click)="backToDashboard()" class="text-sm text-gray-600 hover:text-gray-900">Back to dashboard</button>
-    </div>
+    <h1 class="text-2xl font-semibold text-gray-900 mb-8">Platform Admin</h1>
 
     @if (loadError) {
       <p class="text-red-600">{{ loadError }}</p>
     }
 
-    <div class="space-y-6">
+    <div class="space-y-4">
       @for (client of clients(); track client.id) {
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
               <h2 class="font-medium text-gray-900">{{ client.name }}</h2>
               @if (client.subscription) {
                 <span
-                  class="text-xs px-2 py-0.5 rounded-full"
+                  class="text-xs px-2 py-0.5 rounded-full font-medium"
                   [class]="
                     client.subscription.status === 'SUSPENDED'
                       ? 'bg-red-100 text-red-700'
-                      : 'bg-green-100 text-green-700'
+                      : client.subscription.status === 'TRIAL'
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-green-100 text-green-700'
                   "
                 >
                   {{ client.subscription.status }}
