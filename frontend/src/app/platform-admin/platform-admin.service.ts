@@ -19,12 +19,24 @@ export interface AdminClient {
   moduleAccess: ModuleAccessEntry[];
 }
 
+export interface ModuleCatalogEntry {
+  id: string;
+  key: string;
+  name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PlatformAdminService {
   private readonly http = inject(HttpClient);
 
   listClients(): Observable<AdminClient[]> {
     return this.http.get<AdminClient[]>(`${environment.apiBase}/admin/clients`);
+  }
+
+  // The full catalog, not just a client's existing grants -- needed so the
+  // UI can offer a checkbox for every module, even ones never granted before.
+  listModuleCatalog(): Observable<ModuleCatalogEntry[]> {
+    return this.http.get<ModuleCatalogEntry[]>(`${environment.apiBase}/admin/modules`);
   }
 
   setModuleEnabled(clientId: string, moduleId: string, enabled: boolean): Observable<unknown> {

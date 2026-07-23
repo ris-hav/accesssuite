@@ -8,6 +8,7 @@ import { validate } from './config/env.validation';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ReportsModule } from './reports/reports.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ReportsModule } from './reports/reports.module';
     ClientsModule,
     ReportsModule,
     PlatformAdminModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

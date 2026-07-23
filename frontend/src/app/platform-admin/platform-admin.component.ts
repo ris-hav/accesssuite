@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AdminClient, PlatformAdminService } from './platform-admin.service';
+import { forkJoin } from 'rxjs';
+import { AdminClient, ModuleCatalogEntry, PlatformAdminService } from './platform-admin.service';
 
 @Component({
   selector: 'app-platform-admin',
@@ -11,6 +12,7 @@ export class PlatformAdminComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly clients = signal<AdminClient[]>([]);
+  readonly moduleCatalog = signal<ModuleCatalogEntry[]>([]);
   loadError: string | null = null;
 
   ngOnInit(): void {
@@ -18,10 +20,22 @@ export class PlatformAdminComponent implements OnInit {
   }
 
   private load(): void {
-    this.platformAdminService.listClients().subscribe({
-      next: (clients) => this.clients.set(clients),
+    forkJoin({
+      clients: this.platformAdminService.listClients(),
+      moduleCatalog: this.platformAdminService.listModuleCatalog(),
+    }).subscribe({
+      next: ({ clients, moduleCatalog }) => {
+        this.clients.set(clients);
+        this.moduleCatalog.set(moduleCatalog);
+      },
       error: () => (this.loadError = 'Could not load clients'),
     });
+  }
+
+  // A client may have no ClientModuleAccess row at all for a given module
+  // (never granted before) — that's just "not enabled", not an error.
+  isModuleEnabled(client: AdminClient, moduleId: string): boolean {
+    return client.moduleAccess.some((a) => a.moduleId === moduleId && a.enabled);
   }
 
   // Re-fetches the whole list after every change instead of patching local

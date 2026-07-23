@@ -1,0 +1,59 @@
+<div class="min-h-screen bg-gray-50 p-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Reports</h1>
+      <a routerLink="/dashboard" class="text-sm text-gray-600 hover:text-gray-900">Back to dashboard</a>
+    </div>
+
+    @if (loadError) {
+      <p class="text-red-600">{{ loadError }}</p>
+    } @else if (report()) {
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="flex items-center justify-between">
+          <h2 class="font-medium text-gray-900">{{ report()!.client.name }}</h2>
+          @if (report()!.subscription) {
+            <span
+              class="text-xs px-2 py-0.5 rounded-full font-medium"
+              [class]="
+                report()!.subscription!.status === 'SUSPENDED'
+                  ? 'bg-red-100 text-red-700'
+                  : report()!.subscription!.status === 'TRIAL'
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-green-100 text-green-700'
+              "
+            >
+              {{ report()!.subscription!.status }}
+            </span>
+          }
+        </div>
+        @if (report()!.subscription?.status === 'TRIAL') {
+          <p class="text-sm text-gray-500 mt-1">
+            Trial ends {{ report()!.subscription!.trialEndsAt | date: 'mediumDate' }}
+          </p>
+        }
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+          <p class="text-3xl font-semibold text-gray-900">{{ report()!.userCounts.ADMIN }}</p>
+          <p class="text-sm text-gray-500 mt-1">Admins</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+          <p class="text-3xl font-semibold text-gray-900">{{ report()!.userCounts.MANAGER }}</p>
+          <p class="text-sm text-gray-500 mt-1">Managers</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+          <p class="text-3xl font-semibold text-gray-900">{{ report()!.userCounts.VIEWER }}</p>
+          <p class="text-sm text-gray-500 mt-1">Viewers</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium text-gray-900 mb-2">Enabled modules</h2>
+        <p class="text-sm text-gray-600">{{ report()!.enabledModules.join(', ') || 'None' }}</p>
+      </div>
+    } @else {
+      <p class="text-gray-500">Loading…</p>
+    }
+  </div>
+</div>

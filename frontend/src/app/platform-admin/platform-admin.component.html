@@ -43,22 +43,18 @@
             }
           </div>
 
-          @if (client.moduleAccess.length > 0) {
-            <div class="flex flex-wrap gap-4">
-              @for (access of client.moduleAccess; track access.id) {
-                <label class="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="checkbox"
-                    [checked]="access.enabled"
-                    (change)="toggleModule(client.id, access.moduleId, access.enabled)"
-                  />
-                  {{ access.module.name }}
-                </label>
-              }
-            </div>
-          } @else {
-            <p class="text-sm text-gray-400">No modules assigned yet</p>
-          }
+          <div class="flex flex-wrap gap-4">
+            @for (module of moduleCatalog(); track module.id) {
+              <label class="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  [checked]="isModuleEnabled(client, module.id)"
+                  (change)="toggleModule(client.id, module.id, isModuleEnabled(client, module.id))"
+                />
+                {{ module.name }}
+              </label>
+            }
+          </div>
         </div>
       }
     </div>
