@@ -11,7 +11,9 @@ export class PlatformAdminComponent implements OnInit {
 
   readonly clients = signal<AdminClient[]>([]);
   readonly moduleCatalog = signal<ModuleCatalogEntry[]>([]);
-  loadError: string | null = null;
+  // Signal, not a plain property: this app runs zoneless, so state set
+  // inside an HTTP subscribe callback must be a signal to actually re-render.
+  readonly loadError = signal<string | null>(null);
 
   ngOnInit(): void {
     this.load();
@@ -26,7 +28,7 @@ export class PlatformAdminComponent implements OnInit {
         this.clients.set(clients);
         this.moduleCatalog.set(moduleCatalog);
       },
-      error: () => (this.loadError = 'Could not load clients'),
+      error: () => this.loadError.set('Could not load clients'),
     });
   }
 

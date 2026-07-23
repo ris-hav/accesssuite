@@ -2,8 +2,8 @@
   <div class="max-w-2xl mx-auto">
     <h1 class="text-2xl font-semibold text-gray-900 mb-8">Team</h1>
 
-    @if (loadError) {
-      <p class="text-red-600 mb-4">{{ loadError }}</p>
+    @if (loadError()) {
+      <p class="text-red-600 mb-4">{{ loadError() }}</p>
     }
 
     <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-6 mb-6">
@@ -85,8 +85,8 @@
         </select>
       </div>
 
-      @if (formError) {
-        <p class="text-sm text-red-600">{{ formError }}</p>
+      @if (formError()) {
+        <p class="text-sm text-red-600">{{ formError() }}</p>
       }
 
       <button
