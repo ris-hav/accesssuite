@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface LoginResponse {
   accessToken: string;
@@ -20,8 +21,6 @@ export interface Me {
   modules: string[];
 }
 
-const API_BASE = 'http://localhost:3000';
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -40,14 +39,14 @@ export class AuthService {
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${API_BASE}/auth/login`, { email, password }, { withCredentials: true })
+      .post<LoginResponse>(`${environment.apiBase}/auth/login`, { email, password }, { withCredentials: true })
       .pipe(tap((res) => (this.token = res.accessToken)));
   }
 
   signup(clientName: string, adminEmail: string, adminPassword: string): Observable<SignupResponse> {
     return this.http
       .post<SignupResponse>(
-        `${API_BASE}/clients/signup`,
+        `${environment.apiBase}/clients/signup`,
         { clientName, adminEmail, adminPassword },
         { withCredentials: true },
       )
@@ -60,19 +59,19 @@ export class AuthService {
   // server-side — e.g. right after a page reload wiped our in-memory token.
   refresh(): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${API_BASE}/auth/refresh`, {}, { withCredentials: true })
+      .post<LoginResponse>(`${environment.apiBase}/auth/refresh`, {}, { withCredentials: true })
       .pipe(tap((res) => (this.token = res.accessToken)));
   }
 
   fetchMe(): Observable<Me> {
-    return this.http.get<Me>(`${API_BASE}/auth/me`).pipe(tap((me) => this.currentUser.set(me)));
+    return this.http.get<Me>(`${environment.apiBase}/auth/me`).pipe(tap((me) => this.currentUser.set(me)));
   }
 
   // Revokes the refresh token server-side (so it can't be used even if
   // someone captured the cookie) before clearing local state. Best-effort:
   // even if the network call fails, we still log out locally.
   logout(): Observable<void> {
-    return this.http.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true }).pipe(
+    return this.http.post(`${environment.apiBase}/auth/logout`, {}, { withCredentials: true }).pipe(
       map(() => undefined),
       tap(() => this.clearLocalSession()),
       catchError(() => {

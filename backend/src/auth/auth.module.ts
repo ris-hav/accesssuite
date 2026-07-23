@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { requireEnv } from '../common/env';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -9,13 +9,17 @@ import { JwtStrategy } from './jwt.strategy';
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: requireEnv('JWT_SECRET'),
-      // `expiresIn` wants a branded string type from the `ms` package (e.g. '1d', '2h'),
-      // but env vars are always plain `string` — narrow cast is safe, value is our own config.
-      signOptions: {
-        expiresIn: (process.env.JWT_EXPIRES_IN ?? '15m') as `${number}${'s' | 'm' | 'h' | 'd'}`,
-      },
+    // registerAsync (not register) because we need ConfigService's value,
+    // which only exists once Nest's DI container is up — register()'s plain
+    // object argument is evaluated at module-decoration time, before that.
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.getOrThrow<string>('JWT_EXPIRES_IN') as `${number}${'s' | 'm' | 'h' | 'd'}`,
+        },
+      }),
     }),
   ],
   controllers: [AuthController],
