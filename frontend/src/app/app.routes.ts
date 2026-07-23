@@ -23,4 +23,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./platform-admin/platform-admin.component').then((m) => m.PlatformAdminComponent),
   },
+  {
+    path: 'reports',
+    canActivate: [authGuard],
+    loadComponent: () => import('./reports/reports.component').then((m) => m.ReportsComponent),
+  },
+  {
+    path: 'team',
+    canActivate: [authGuard],
+    loadComponent: () => import('./team/team.component').then((m) => m.TeamComponent),
+  },
 ];

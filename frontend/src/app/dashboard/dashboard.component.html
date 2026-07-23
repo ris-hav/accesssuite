@@ -10,17 +10,26 @@
     } @else if (user()) {
       <p class="text-gray-600 mb-6">Signed in as {{ user()!.email }} ({{ user()!.role }})</p>
 
-      @if (user()!.isSuperAdmin) {
-        <a routerLink="/admin" class="inline-block mb-6 text-sm text-blue-600 hover:underline">
-          Go to Platform Admin
-        </a>
-      }
+      <div class="flex gap-4 mb-6">
+        @if (user()!.isSuperAdmin) {
+          <a routerLink="/admin" class="text-sm text-blue-600 hover:underline">Go to Platform Admin</a>
+        }
+        @if (user()!.role === 'ADMIN') {
+          <a routerLink="/team" class="text-sm text-blue-600 hover:underline">Manage Team</a>
+        }
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         @for (moduleKey of user()!.modules; track moduleKey) {
-          <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="font-medium text-gray-900">{{ moduleLabels[moduleKey] ?? moduleKey }}</h2>
-          </div>
+          @if (moduleKey === 'reports') {
+            <a routerLink="/reports" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+              <h2 class="font-medium text-gray-900">{{ moduleLabels[moduleKey] ?? moduleKey }}</h2>
+            </a>
+          } @else {
+            <div class="bg-white rounded-lg shadow p-6">
+              <h2 class="font-medium text-gray-900">{{ moduleLabels[moduleKey] ?? moduleKey }}</h2>
+            </div>
+          }
         }
       </div>
 

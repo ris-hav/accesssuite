@@ -18,6 +18,11 @@ export class PlatformAdminController {
     return this.platformAdminService.listClients();
   }
 
+  @Get('modules')
+  listModuleCatalog() {
+    return this.platformAdminService.listModuleCatalog();
+  }
+
   @Patch('clients/:id/subscription')
   updateSubscription(@Param('id') clientId: string, @Body() dto: UpdateSubscriptionDto) {
     return this.platformAdminService.updateSubscriptionStatus(clientId, dto);
