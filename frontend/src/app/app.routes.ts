@@ -13,24 +13,30 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/signup/signup.component').then((m) => m.SignupComponent),
   },
   {
-    path: 'dashboard',
+    // authGuard here applies to every child below — a guard on a parent
+    // route runs before Angular activates any of its children.
+    path: '',
     canActivate: [authGuard],
-    loadComponent: () => import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
-  },
-  {
-    path: 'admin',
-    canActivate: [authGuard, superAdminGuard],
-    loadComponent: () =>
-      import('./platform-admin/platform-admin.component').then((m) => m.PlatformAdminComponent),
-  },
-  {
-    path: 'reports',
-    canActivate: [authGuard],
-    loadComponent: () => import('./reports/reports.component').then((m) => m.ReportsComponent),
-  },
-  {
-    path: 'team',
-    canActivate: [authGuard],
-    loadComponent: () => import('./team/team.component').then((m) => m.TeamComponent),
+    loadComponent: () => import('./layout/layout.component').then((m) => m.LayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./reports/reports.component').then((m) => m.ReportsComponent),
+      },
+      {
+        path: 'team',
+        loadComponent: () => import('./team/team.component').then((m) => m.TeamComponent),
+      },
+      {
+        path: 'admin',
+        canActivate: [superAdminGuard],
+        loadComponent: () =>
+          import('./platform-admin/platform-admin.component').then((m) => m.PlatformAdminComponent),
+      },
+    ],
   },
 ];

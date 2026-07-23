@@ -1,12 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { TeamMember, TeamService } from './team.service';
 
 @Component({
   selector: 'app-team',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule],
   templateUrl: './team.component.html',
 })
 export class TeamComponent implements OnInit {
