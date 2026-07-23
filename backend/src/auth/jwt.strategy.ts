@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { requireEnv } from '../common/env';
 
 export interface JwtPayload {
   sub: string;
@@ -13,11 +13,15 @@ export interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  // Note: `configService` here is used by name directly in the super() call
+  // below, not via `this.configService` — you can't touch `this` before
+  // super() runs in a derived class, but the plain constructor parameter is
+  // just a local variable at that point, so referencing it directly is fine.
+  constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: requireEnv('JWT_SECRET'),
+      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
     });
   }
 
