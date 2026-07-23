@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
@@ -20,19 +20,21 @@ export class SignupComponent {
     adminPassword: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  errorMessage: string | null = null;
+  // Signal, not a plain property: this app runs zoneless, so state set
+  // inside an HTTP subscribe callback must be a signal to actually re-render.
+  readonly errorMessage = signal<string | null>(null);
   showPassword = false;
 
   submit(): void {
     if (this.form.invalid) {
       return;
     }
-    this.errorMessage = null;
+    this.errorMessage.set(null);
     const { clientName, adminEmail, adminPassword } = this.form.getRawValue();
     this.authService.signup(clientName, adminEmail, adminPassword).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err: HttpErrorResponse) => {
-        this.errorMessage = err.error?.message ?? 'Signup failed';
+        this.errorMessage.set(err.error?.message ?? 'Signup failed');
       },
     });
   }

@@ -13,8 +13,10 @@ export class TeamComponent implements OnInit {
   private readonly teamService = inject(TeamService);
 
   readonly members = signal<TeamMember[]>([]);
-  loadError: string | null = null;
-  formError: string | null = null;
+  // Signals, not plain properties: this app runs zoneless, so state set
+  // inside an HTTP subscribe callback must be a signal to actually re-render.
+  readonly loadError = signal<string | null>(null);
+  readonly formError = signal<string | null>(null);
   showPassword = false;
 
   readonly form = this.fb.nonNullable.group({
@@ -30,7 +32,7 @@ export class TeamComponent implements OnInit {
   private load(): void {
     this.teamService.listUsers().subscribe({
       next: (members) => this.members.set(members),
-      error: () => (this.loadError = 'Could not load the team.'),
+      error: () => this.loadError.set('Could not load the team.'),
     });
   }
 
@@ -38,7 +40,7 @@ export class TeamComponent implements OnInit {
     if (this.form.invalid) {
       return;
     }
-    this.formError = null;
+    this.formError.set(null);
     const { email, password, role } = this.form.getRawValue();
     this.teamService.createUser(email, password, role).subscribe({
       next: () => {
@@ -46,7 +48,7 @@ export class TeamComponent implements OnInit {
         this.load();
       },
       error: (err: HttpErrorResponse) => {
-        this.formError = err.error?.message ?? 'Could not add that user.';
+        this.formError.set(err.error?.message ?? 'Could not add that user.');
       },
     });
   }

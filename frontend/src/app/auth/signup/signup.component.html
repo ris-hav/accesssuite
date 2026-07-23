@@ -56,8 +56,8 @@
       </div>
     </div>
 
-    @if (errorMessage) {
-      <p class="text-sm text-red-600">{{ errorMessage }}</p>
+    @if (errorMessage()) {
+      <p class="text-sm text-red-600">{{ errorMessage() }}</p>
     }
 
     <button
