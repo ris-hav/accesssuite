@@ -1,5 +1,5 @@
 <div class="min-h-screen flex flex-col bg-slate-50">
-  <header class="h-14 shrink-0 flex items-center gap-3 px-4 bg-white border-b border-gray-200 z-10">
+  <header class="h-16 shrink-0 flex items-center gap-3 px-4 bg-white border-b border-gray-200 shadow-sm z-10">
     <button
       (click)="toggleSidebar()"
       type="button"
@@ -11,22 +11,46 @@
       </svg>
     </button>
 
-    <span class="font-semibold text-gray-900 tracking-tight">AccessSuite</span>
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">
+        A
+      </div>
+      <span class="font-semibold text-gray-900 tracking-tight">AccessSuite</span>
+    </div>
 
     <div class="flex-1"></div>
 
     @if (user(); as u) {
-      <div class="text-right leading-tight hidden sm:block">
-        <p class="text-sm text-gray-900">{{ u.email }}</p>
-        <p class="text-xs text-gray-500">{{ u.role }}</p>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
+          <div
+            class="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs font-semibold shrink-0"
+          >
+            {{ u.email.charAt(0).toUpperCase() }}
+          </div>
+          <div class="text-left leading-tight hidden sm:block">
+            <p class="text-sm text-gray-900 font-medium">{{ u.email }}</p>
+            <p class="text-xs text-gray-500">{{ u.role }}</p>
+          </div>
+        </div>
+
+        <div class="w-px h-8 bg-gray-200"></div>
+
+        <button
+          (click)="logout()"
+          type="button"
+          class="flex items-center gap-1.5 text-sm text-gray-600 rounded-md px-3 py-1.5 hover:bg-gray-100 hover:text-gray-900 cursor-pointer transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          Sign out
+        </button>
       </div>
-      <button
-        (click)="logout()"
-        type="button"
-        class="text-sm text-gray-600 hover:text-gray-900 cursor-pointer transition-colors"
-      >
-        Sign out
-      </button>
     }
   </header>
 
@@ -54,7 +78,17 @@
           </a>
         }
 
-        @if (user()?.role === 'ADMIN') {
+        @if (user()?.modules?.includes('settings')) {
+          <a
+            routerLink="/settings"
+            routerLinkActive="bg-slate-800 text-white"
+            class="flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
+          >
+            Settings
+          </a>
+        }
+
+        @if (user()?.role === 'ADMIN' && !user()?.isSuperAdmin) {
           <a
             routerLink="/team"
             routerLinkActive="bg-slate-800 text-white"
