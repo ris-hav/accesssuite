@@ -53,10 +53,10 @@
 
     <button
       type="submit"
-      [disabled]="form.invalid"
-      class="w-full bg-blue-600 text-white rounded py-2 font-medium disabled:opacity-50"
+      [disabled]="form.invalid || isSubmitting()"
+      class="w-full bg-blue-600 text-white rounded py-2 font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
     >
-      Sign in
+      {{ isSubmitting() ? 'Signing in…' : 'Sign in' }}
     </button>
 
     <p class="text-sm text-gray-500 text-center">

@@ -23,6 +23,7 @@ export class SignupComponent {
   // Signal, not a plain property: this app runs zoneless, so state set
   // inside an HTTP subscribe callback must be a signal to actually re-render.
   readonly errorMessage = signal<string | null>(null);
+  readonly isSubmitting = signal(false);
   showPassword = false;
 
   submit(): void {
@@ -30,10 +31,12 @@ export class SignupComponent {
       return;
     }
     this.errorMessage.set(null);
+    this.isSubmitting.set(true);
     const { clientName, adminEmail, adminPassword } = this.form.getRawValue();
     this.authService.signup(clientName, adminEmail, adminPassword).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err: HttpErrorResponse) => {
+        this.isSubmitting.set(false);
         this.errorMessage.set(err.error?.message ?? 'Signup failed');
       },
     });
