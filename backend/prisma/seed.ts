@@ -74,6 +74,19 @@ async function main() {
     },
   });
 
+  // A MANAGER-role user too, so role-restricted routes have a middle case
+  // to test, not just ADMIN vs VIEWER.
+  await prisma.user.upsert({
+    where: { email: 'manager@demo.accesssuite.dev' },
+    update: {},
+    create: {
+      email: 'manager@demo.accesssuite.dev',
+      passwordHash: await bcrypt.hash('DemoManager123!', 10),
+      role: 'MANAGER',
+      clientId: demoClient.id,
+    },
+  });
+
   await Promise.all(
     modules.map((m) =>
       prisma.clientModuleAccess.upsert({
@@ -87,6 +100,7 @@ async function main() {
   console.log('Seed complete:');
   console.log('  Super-admin: superadmin@accesssuite.dev / SuperAdmin123!');
   console.log('  Demo admin:  admin@demo.accesssuite.dev / DemoAdmin123!');
+  console.log('  Demo manager: manager@demo.accesssuite.dev / DemoManager123!');
   console.log('  Demo viewer: viewer@demo.accesssuite.dev / DemoViewer123!');
 }
 

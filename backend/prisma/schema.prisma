@@ -61,7 +61,7 @@ model RefreshToken {
   // directly. SHA-256 (not bcrypt) is enough here because this token is
   // already high-entropy random data, unlike a human-chosen password.
   tokenHash String    @unique
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   expiresAt DateTime
   // Set on rotation (a refresh mints a new token and revokes this one) or

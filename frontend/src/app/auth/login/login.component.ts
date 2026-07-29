@@ -23,6 +23,7 @@ export class LoginComponent {
   // inside an async callback like an HTTP subscribe. A plain property set
   // there would silently never appear in the view.
   readonly errorMessage = signal<string | null>(null);
+  readonly isSubmitting = signal(false);
   showPassword = false;
 
   submit(): void {
@@ -30,10 +31,14 @@ export class LoginComponent {
       return;
     }
     this.errorMessage.set(null);
+    this.isSubmitting.set(true);
     const { email, password } = this.form.getRawValue();
     this.authService.login(email, password).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: () => this.errorMessage.set('Invalid email or password'),
+      error: () => {
+        this.isSubmitting.set(false);
+        this.errorMessage.set('Invalid email or password');
+      },
     });
   }
 }

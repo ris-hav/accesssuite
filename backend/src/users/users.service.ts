@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -33,5 +33,24 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async deleteFromClient(clientId: string, targetUserId: string, callerUserId: string): Promise<void> {
+    if (targetUserId === callerUserId) {
+      throw new BadRequestException('You cannot remove your own account');
+    }
+
+    // findFirst (not findUnique on id alone) so this also enforces tenant
+    // isolation: a user id that belongs to a *different* client 404s here,
+    // rather than letting one client's admin delete another client's user.
+    const target = await this.prisma.user.findFirst({
+      where: { id: targetUserId, clientId },
+      select: { id: true },
+    });
+    if (!target) {
+      throw new NotFoundException('No such user on this client');
+    }
+
+    await this.prisma.user.delete({ where: { id: targetUserId } });
   }
 }

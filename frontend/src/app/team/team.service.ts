@@ -21,4 +21,8 @@ export class TeamService {
   createUser(email: string, password: string, role: string): Observable<TeamMember> {
     return this.http.post<TeamMember>(`${environment.apiBase}/users`, { email, password, role });
   }
+
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiBase}/users/${id}`);
+  }
 }
