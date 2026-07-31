@@ -14,7 +14,11 @@ import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { REFRESH_TOKEN_COOKIE, clearRefreshTokenCookie, setRefreshTokenCookie } from '../common/refresh-cookie';
+import {
+  REFRESH_TOKEN_COOKIE,
+  clearRefreshTokenCookie,
+  setRefreshTokenCookie,
+} from '../common/refresh-cookie';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
@@ -30,11 +34,15 @@ export class AuthController {
     private readonly authService: AuthService,
     configService: ConfigService,
   ) {
-    this.useSecureCookies = configService.getOrThrow<string>('NODE_ENV') !== 'development';
+    this.useSecureCookies =
+      configService.getOrThrow<string>('NODE_ENV') !== 'development';
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { accessToken, refreshToken } = await this.authService.login(dto);
     setRefreshTokenCookie(res, refreshToken, this.useSecureCookies);
     // The refresh token is never returned in the JSON body — the httpOnly
@@ -47,20 +55,27 @@ export class AuthController {
   // automatically — no credentials re-entered, no visible redirect.
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request & { cookies: Record<string, string> }, @Res({ passthrough: true }) res: Response) {
+  async refresh(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const rawRefreshToken = req.cookies[REFRESH_TOKEN_COOKIE];
     if (!rawRefreshToken) {
       throw new UnauthorizedException('No refresh token');
     }
 
-    const { accessToken, refreshToken } = await this.authService.refreshSession(rawRefreshToken);
+    const { accessToken, refreshToken } =
+      await this.authService.refreshSession(rawRefreshToken);
     setRefreshTokenCookie(res, refreshToken, this.useSecureCookies);
     return { accessToken };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request & { cookies: Record<string, string> }, @Res({ passthrough: true }) res: Response) {
+  async logout(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const rawRefreshToken = req.cookies[REFRESH_TOKEN_COOKIE];
     if (rawRefreshToken) {
       await this.authService.revokeRefreshToken(rawRefreshToken);
@@ -77,7 +92,13 @@ export class AuthController {
   me(
     @Req()
     req: Request & {
-      user: { userId: string; email: string; role: string; isSuperAdmin: boolean; clientId: string | null };
+      user: {
+        userId: string;
+        email: string;
+        role: string;
+        isSuperAdmin: boolean;
+        clientId: string | null;
+      };
     },
   ) {
     return this.authService.getMe(req.user);

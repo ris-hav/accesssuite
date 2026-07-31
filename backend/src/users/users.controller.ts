@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TenantScopeGuard } from '../common/guards/tenant-scope.guard';
@@ -25,7 +36,10 @@ export class UsersController {
 
   @Post()
   @Roles('ADMIN')
-  create(@Req() req: Request & { user: { clientId: string } }, @Body() dto: CreateUserDto) {
+  create(
+    @Req() req: Request & { user: { clientId: string } },
+    @Body() dto: CreateUserDto,
+  ) {
     return this.usersService.createForClient(req.user.clientId, dto);
   }
 
@@ -36,6 +50,10 @@ export class UsersController {
     @Req() req: Request & { user: { clientId: string; userId: string } },
     @Param('id') targetUserId: string,
   ) {
-    return this.usersService.deleteFromClient(req.user.clientId, targetUserId, req.user.userId);
+    return this.usersService.deleteFromClient(
+      req.user.clientId,
+      targetUserId,
+      req.user.userId,
+    );
   }
 }

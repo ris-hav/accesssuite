@@ -23,7 +23,10 @@ async function bootstrap() {
   // browser rules. curl never hits this, since CORS is enforced by browsers,
   // not servers. `credentials: true` is required separately for the browser
   // to send/store the httpOnly refresh-token cookie on cross-origin requests.
-  app.enableCors({ origin: configService.getOrThrow<string>('CORS_ORIGIN'), credentials: true });
+  app.enableCors({
+    origin: configService.getOrThrow<string>('CORS_ORIGIN'),
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('AccessSuite API')
@@ -35,4 +38,8 @@ async function bootstrap() {
 
   await app.listen(configService.getOrThrow<number>('PORT'));
 }
-bootstrap();
+
+bootstrap().catch((error: unknown) => {
+  console.error('Failed to start application:', error);
+  process.exit(1);
+});

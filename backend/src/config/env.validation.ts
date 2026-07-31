@@ -1,5 +1,11 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsInt, IsString, MinLength, validateSync } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsString,
+  MinLength,
+  validateSync,
+} from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -32,11 +38,15 @@ class EnvironmentVariables {
 // so a missing or malformed env var crashes the app immediately at startup
 // with a clear message, instead of failing confusingly on the first request
 // that happens to touch that value (or worse, silently misbehaving).
-export function validate(config: Record<string, unknown>): EnvironmentVariables {
+export function validate(
+  config: Record<string, unknown>,
+): EnvironmentVariables {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
-  const errors = validateSync(validatedConfig, { skipMissingProperties: false });
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
 
   if (errors.length > 0) {
     throw new Error(`Invalid environment configuration:\n${errors.toString()}`);

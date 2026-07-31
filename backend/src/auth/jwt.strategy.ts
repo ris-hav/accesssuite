@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   // Whatever this returns becomes `req.user` on every guarded route.
   // Runs only after the token's signature and expiry have already been verified.
-  async validate(payload: JwtPayload) {
+  validate(payload: JwtPayload) {
     return {
       userId: payload.sub,
       email: payload.email,

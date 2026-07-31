@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
@@ -12,7 +17,10 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Reads whatever @Roles(...) set on this specific route handler.
-    const requiredRoles = this.reflector.get<string[]>(ROLES_KEY, context.getHandler());
+    const requiredRoles = this.reflector.get<string[]>(
+      ROLES_KEY,
+      context.getHandler(),
+    );
 
     // No @Roles() on this route at all -> no restriction, allow through.
     if (!requiredRoles || requiredRoles.length === 0) {
@@ -21,7 +29,9 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<{ user: RequestUser }>();
     if (!requiredRoles.includes(request.user.role)) {
-      throw new ForbiddenException(`Requires one of these roles: ${requiredRoles.join(', ')}`);
+      throw new ForbiddenException(
+        `Requires one of these roles: ${requiredRoles.join(', ')}`,
+      );
     }
     return true;
   }

@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -28,14 +33,23 @@ export class UsersService {
     } catch (error) {
       // Same email-uniqueness conflict as client signup — email is unique
       // across the whole platform, not just within one client.
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException('An account with that email already exists');
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'An account with that email already exists',
+        );
       }
       throw error;
     }
   }
 
-  async deleteFromClient(clientId: string, targetUserId: string, callerUserId: string): Promise<void> {
+  async deleteFromClient(
+    clientId: string,
+    targetUserId: string,
+    callerUserId: string,
+  ): Promise<void> {
     if (targetUserId === callerUserId) {
       throw new BadRequestException('You cannot remove your own account');
     }

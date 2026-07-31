@@ -10,7 +10,10 @@ export class PlatformAdminService {
 
   listClients() {
     return this.prisma.client.findMany({
-      include: { subscription: true, moduleAccess: { include: { module: true } } },
+      include: {
+        subscription: true,
+        moduleAccess: { include: { module: true } },
+      },
     });
   }
 
@@ -22,7 +25,9 @@ export class PlatformAdminService {
   }
 
   async updateSubscriptionStatus(clientId: string, dto: UpdateSubscriptionDto) {
-    const subscription = await this.prisma.subscription.findUnique({ where: { clientId } });
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { clientId },
+    });
     if (!subscription) {
       throw new NotFoundException('No subscription found for this client');
     }
@@ -35,7 +40,11 @@ export class PlatformAdminService {
   // upsert (not update-only): a client that signed up with zero modules has
   // no ClientModuleAccess row to update yet — this is how a module gets
   // granted for the very first time, not just toggled.
-  async updateModuleAccess(clientId: string, moduleId: string, dto: UpdateModuleAccessDto) {
+  async updateModuleAccess(
+    clientId: string,
+    moduleId: string,
+    dto: UpdateModuleAccessDto,
+  ) {
     try {
       return await this.prisma.clientModuleAccess.upsert({
         where: { clientId_moduleId: { clientId, moduleId } },

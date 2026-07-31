@@ -24,7 +24,10 @@ export class PlatformAdminController {
   }
 
   @Patch('clients/:id/subscription')
-  updateSubscription(@Param('id') clientId: string, @Body() dto: UpdateSubscriptionDto) {
+  updateSubscription(
+    @Param('id') clientId: string,
+    @Body() dto: UpdateSubscriptionDto,
+  ) {
     return this.platformAdminService.updateSubscriptionStatus(clientId, dto);
   }
 
@@ -34,6 +37,10 @@ export class PlatformAdminController {
     @Param('moduleId') moduleId: string,
     @Body() dto: UpdateModuleAccessDto,
   ) {
-    return this.platformAdminService.updateModuleAccess(clientId, moduleId, dto);
+    return this.platformAdminService.updateModuleAccess(
+      clientId,
+      moduleId,
+      dto,
+    );
   }
 }

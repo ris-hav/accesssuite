@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { REQUIRE_MODULE_KEY } from '../decorators/require-module.decorator';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -15,7 +20,10 @@ export class ModuleAccessGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const moduleKey = this.reflector.get<string>(REQUIRE_MODULE_KEY, context.getHandler());
+    const moduleKey = this.reflector.get<string>(
+      REQUIRE_MODULE_KEY,
+      context.getHandler(),
+    );
 
     // No @RequireModule() on this route -> nothing to check.
     if (!moduleKey) {
@@ -36,7 +44,9 @@ export class ModuleAccessGuard implements CanActivate {
       where: { clientId, module: { key: moduleKey }, enabled: true },
     });
     if (!access) {
-      throw new ForbiddenException(`Module "${moduleKey}" is not enabled for this client`);
+      throw new ForbiddenException(
+        `Module "${moduleKey}" is not enabled for this client`,
+      );
     }
 
     return true;
