@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
@@ -22,14 +31,19 @@ export class ClientsController {
     private readonly clientsService: ClientsService,
     configService: ConfigService,
   ) {
-    this.useSecureCookies = configService.getOrThrow<string>('NODE_ENV') !== 'development';
+    this.useSecureCookies =
+      configService.getOrThrow<string>('NODE_ENV') !== 'development';
   }
 
   // Deliberately unguarded: this is how a brand-new tenant joins the platform
   // in the first place, so there's no existing token to require yet.
   @Post('signup')
-  async signup(@Body() dto: SignupDto, @Res({ passthrough: true }) res: Response) {
-    const { client, accessToken, refreshToken } = await this.clientsService.signup(dto);
+  async signup(
+    @Body() dto: SignupDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { client, accessToken, refreshToken } =
+      await this.clientsService.signup(dto);
     setRefreshTokenCookie(res, refreshToken, this.useSecureCookies);
     return { client, accessToken };
   }
@@ -51,7 +65,10 @@ export class ClientsController {
   @Patch('me')
   @Roles('ADMIN')
   @RequireModule('settings')
-  updateMyClient(@Req() req: Request & { user: { clientId: string } }, @Body() dto: UpdateClientDto) {
+  updateMyClient(
+    @Req() req: Request & { user: { clientId: string } },
+    @Body() dto: UpdateClientDto,
+  ) {
     return this.clientsService.updateMyClient(req.user.clientId, dto);
   }
 }

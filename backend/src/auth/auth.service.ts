@@ -22,8 +22,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(dto: LoginDto): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+  async login(
+    dto: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
 
     // Deliberately the same error for "no such user" and "wrong password" —
     // telling an attacker which one it was leaks whether an email is registered.
@@ -31,7 +35,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const passwordMatches = await bcrypt.compare(dto.password, user.passwordHash);
+    const passwordMatches = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -45,7 +52,9 @@ export class AuthService {
   // long-lived refresh token whose raw value only ever exists here and in
   // the httpOnly cookie the controller sets — never persisted in plaintext,
   // never sent back in a JSON body.
-  async createSession(user: TokenSubject): Promise<{ accessToken: string; refreshToken: string }> {
+  async createSession(
+    user: TokenSubject,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { accessToken } = await this.issueAccessToken(user);
     const refreshToken = await this.issueRefreshToken(user.id);
     return { accessToken, refreshToken };
@@ -55,7 +64,9 @@ export class AuthService {
   // Rotation: the incoming token is revoked here regardless of outcome further
   // down, so it's single-use — a captured-and-replayed refresh token stops
   // working the moment the legitimate client uses it once.
-  async refreshSession(rawRefreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async refreshSession(
+    rawRefreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokenHash = this.hashToken(rawRefreshToken);
     const stored = await this.prisma.refreshToken.findUnique({
       where: { tokenHash },
@@ -85,7 +96,9 @@ export class AuthService {
     });
   }
 
-  private async issueAccessToken(user: TokenSubject): Promise<{ accessToken: string }> {
+  private async issueAccessToken(
+    user: TokenSubject,
+  ): Promise<{ accessToken: string }> {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -98,7 +111,9 @@ export class AuthService {
 
   private async issueRefreshToken(userId: string): Promise<string> {
     const raw = randomBytes(64).toString('hex');
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+    );
     await this.prisma.refreshToken.create({
       data: { tokenHash: this.hashToken(raw), userId, expiresAt },
     });

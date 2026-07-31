@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 interface RequestUser {
@@ -22,7 +27,9 @@ export class TenantScopeGuard implements CanActivate {
       throw new ForbiddenException('This route requires a client-scoped user');
     }
 
-    const subscription = await this.prisma.subscription.findUnique({ where: { clientId } });
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { clientId },
+    });
     if (!subscription || subscription.status === 'SUSPENDED') {
       throw new ForbiddenException("This client's subscription is suspended");
     }

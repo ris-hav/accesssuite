@@ -5,7 +5,11 @@ export const REFRESH_TOKEN_COOKIE = 'refreshToken';
 // Shared by AuthController (login, refresh) and ClientsController (signup —
 // which also auto-creates a session) so the cookie is set identically
 // everywhere a session gets created.
-export function setRefreshTokenCookie(res: Response, token: string, secure: boolean): void {
+export function setRefreshTokenCookie(
+  res: Response,
+  token: string,
+  secure: boolean,
+): void {
   res.cookie(REFRESH_TOKEN_COOKIE, token, {
     httpOnly: true, // invisible to JavaScript, even via an XSS bug
     sameSite: 'lax',
