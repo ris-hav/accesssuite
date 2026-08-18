@@ -3,13 +3,16 @@
 # Compiled output
 /dist
 /tmp
-/out-tsc
-/bazel-out
 
 # Node
 /node_modules
 npm-debug.log
 yarn-error.log
+*.tsbuildinfo
+
+# Env files (never commit real secrets)
+.env.local
+.env.*.local
 
 # IDEs and editors
 .idea/
@@ -30,14 +33,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
 /coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
 
 # System files
 .DS_Store
